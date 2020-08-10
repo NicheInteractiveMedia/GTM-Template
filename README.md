@@ -1,4 +1,4 @@
-# ShoppingGives Tag manager
+# ShoppingGives Tag Manager
 
 An easy way to track clicks on the ShoppingGives Widget.
 

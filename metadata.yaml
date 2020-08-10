@@ -15,5 +15,6 @@
 homepage: "https://shoppinggives.com/"
 documentation: "https://shoppinggives.com/"
 versions:
-  - sha: 5f02a788b90ae804f86b04aa24af8937e567874a
+  - sha: 8a1430272a94fec41181fe3b38f5213243426250
     changeNotes: Initial Version
+
