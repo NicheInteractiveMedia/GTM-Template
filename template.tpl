@@ -14,7 +14,7 @@ ___INFO___
   "categories": ["ANALYTICS", "TAG_MANAGEMENT", "SALES"],
   "version": 1,
   "securityGroups": [],
-  "displayName": "ShoppingGives Test",
+  "displayName": "ShoppingGives",
   "brand": {
     "id": "brand_dummy",
     "displayName": "",
