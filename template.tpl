@@ -63,7 +63,6 @@ const generateRandom = require('generateRandom');
 // Data from the dataLayer's current event
 const event = readFromDataLayer('event');
 const classes = readFromDataLayer('gtm.elementClasses');
-
 const trackingId = data.uaCode;
 
 const eventTimestamp = getTimestamp(); // used for eventlabel, transaction id, anti-cache
@@ -72,8 +71,7 @@ const fullHost = getUrl(); // location field
 const hostName = getUrl('host'); // used for product category, affiliation
 const pathName = encodeUriComponent(getUrl('path'));
 
-
-// Measurement protocol prep
+// Measurement protocol preparation
 let endPoint = 'https://www.google-analytics.com/collect?' +
     'v=1' +
     '&tid=' + trackingId +
@@ -87,14 +85,13 @@ let endPoint = 'https://www.google-analytics.com/collect?' +
 
 if (event === 'gtm.elementVisibility' && classes.search('sg-widget') >= 0) {
   
-  endPoint += '&ea=Widget%20load&el=Widget%20visibility&z=' + eventTimestamp;
+  endPoint += '&ea=ShoppingGives%20Widget%20Load&el=Widget%20Visibility&z=' + eventTimestamp;
   sendPixel(endPoint, data.gtmOnSuccess, data.gtmOnFailure);
   
 } else if (event === 'gtm.click') {
   
-  endPoint += '&ea=Click';
+  endPoint += '&ea=ShoppingGives%20Engagement%20Click';
 
-  
   if (classes.search('sg-open-learn-more') >= 0) {
  
     log('Learn More button clicked');
@@ -105,7 +102,7 @@ if (event === 'gtm.elementVisibility' && classes.search('sg-widget') >= 0) {
   } else if (classes.search('sg-open-charity-select') >= 0) {
     
     log('Select Cause button clicked');
-    endPoint += '&el=Select%20Cause';
+    endPoint += '&el=Open%20Cause%20select';
     endPoint += '&z=' + eventTimestamp;
     sendPixel(endPoint, data.gtmOnSuccess, data.gtmOnFailure);
 
@@ -125,7 +122,7 @@ if (event === 'gtm.elementVisibility' && classes.search('sg-widget') >= 0) {
 
   } else {
     
-    log('Something happened');
+    data.gtmOnSuccess();
 
   }
 }
