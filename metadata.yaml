@@ -16,10 +16,13 @@ homepage: "https://shoppinggives.com/"
 documentation: "https://shoppinggives.com/"
 versions:
   # Latest version
+  - sha: 3179d7265ebbc2b606929bdf8017a315e30ca0f8
+    changeNotes: Established a naming convention for actions and labels
+
+  # Older versions
   - sha: 44917778e97906a008931b82849cb85b59f8e5f0
     changeNotes: Minor fixes
 
-  # Older versions
   - sha: 0d0f0d79cfac2b6c4e25ff71ea26e07b0d2574f5
     changeNotes: Initial Version Revision
 
