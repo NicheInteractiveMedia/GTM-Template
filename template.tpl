@@ -128,7 +128,6 @@ if (event === 'gtm.elementVisibility' && classes.search('sg-widget') >= 0) {
 }
 
 
-
 ___WEB_PERMISSIONS___
 
 [
@@ -240,6 +239,6 @@ scenarios: []
 
 ___NOTES___
 
-Created on 21/8/2020 19:37:35
+Created on 31/8/2020 11:16:29
 
 
