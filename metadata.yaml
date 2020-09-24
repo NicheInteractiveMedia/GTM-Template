@@ -16,10 +16,13 @@ homepage: "https://shoppinggives.com/"
 documentation: "https://shoppinggives.com/"
 versions:
   # Latest version
+  - sha: 75e10aec0fa88af46b30ed133d2d9e3ba1e433e6
+    changeNotes: Sent clientID now comes from GA, for correct data representation.
+
+  # Older versions
   - sha: 2943ff7d643e876a4d08a18125a38dd5a7788448
     changeNotes: Established a naming convention for actions and labels
 
-  # Older versions
   - sha: 3179d7265ebbc2b606929bdf8017a315e30ca0f8
     changeNotes: Established a naming convention for actions and labels
 
