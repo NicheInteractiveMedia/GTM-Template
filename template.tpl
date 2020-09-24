@@ -72,7 +72,7 @@ const trackingId = data.uaCode;
 
 const eventTimestamp = getTimestamp(); // used for eventlabel, transaction id, anti-cache
 const fullHost = getUrl(); // location field
-const hostName = getUrl('host'); // used for product category, affiliation
+const hostName = encodeUriComponent(getUrl('host')); // used for product category, affiliation
 const pathName = encodeUriComponent(getUrl('path'));
 
 let clientId;
@@ -140,8 +140,6 @@ if (event === 'gtm.elementVisibility' && classes.search('sg-widget') >= 0) {
     data.gtmOnSuccess();
 
   }
-} else {
-  data.gtmOnFailure();
 }
 
 
