@@ -48,6 +48,33 @@ ___TEMPLATE_PARAMETERS___
     "alwaysInSummary": true,
     "help": "Please input your GA Tracking ID to send the data to your dashboard. Do not use a variable.",
     "notSetText": "Necessary for the tag to work correctly"
+  },
+  {
+    "type": "TEXT",
+    "name": "product",
+    "displayName": "Product page route",
+    "simpleValueType": true,
+    "valueHint": "/product-page/",
+    "notSetText": "Please provide a product page route",
+    "canBeEmptyString": true
+  },
+  {
+    "type": "TEXT",
+    "name": "cart",
+    "displayName": "Cart page route",
+    "simpleValueType": true,
+    "valueHint": "/cart-page/",
+    "notSetText": "Please provide a cart page route",
+    "canBeEmptyString": true
+  },
+  {
+    "type": "TEXT",
+    "name": "checkout",
+    "displayName": "Checkout page route",
+    "simpleValueType": true,
+    "valueHint": "/checkout-page/",
+    "notSetText": "Please provide a checkout page route",
+    "canBeEmptyString": true
   }
 ]
 
@@ -55,90 +82,103 @@ ___TEMPLATE_PARAMETERS___
 ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 
 // Required APIs
-const log = require('logToConsole');
-
+const encode = require('encodeUriComponent');
+const generateRandom = require('generateRandom');
 const getCookieValues = require('getCookieValues');
-const readFromDataLayer = require('copyFromDataLayer');
-const sendPixel = require('sendPixel');
 const getTimestamp = require('getTimestamp');
 const getUrl = require('getUrl');
-const encodeUriComponent = require('encodeUriComponent');
-const generateRandom = require('generateRandom');
+const log = require('logToConsole');
+const readFromDataLayer = require('copyFromDataLayer');
+const readTitle = require('readTitle');
+const sendPixel = require('sendPixel');
 
-// Data from the dataLayer's current event
-const event = readFromDataLayer('event');
+// Read from the gtm's event datalayer
 const classes = readFromDataLayer('gtm.elementClasses');
+const event = readFromDataLayer('event');
+
+// Read from gtm tag's configuration
+const cartRoute = data.cart;
+const checkoutRoute = data.checkout;
+const productRoute = data.product;
 const trackingId = data.uaCode;
 
+// Read from page
 const eventTimestamp = getTimestamp(); // used for eventlabel, transaction id, anti-cache
-const fullHost = getUrl(); // location field
-const hostName = encodeUriComponent(getUrl('host')); // used for product category, affiliation
-const pathName = encodeUriComponent(getUrl('path'));
+const host = getUrl('host'); // used for product category, affiliation
+const path = getUrl('path');
+const title = readTitle();
+const url = getUrl(); // location field
 
-let clientId;
-
-clientId = getCookieValues('_ga')[0].toString();
+let clientId = getCookieValues('_ga')[0].toString() || undefined;
 
 if (clientId == undefined) {
-  clientId = eventTimestamp + '-' + generateRandom(1,999);
+  clientId = eventTimestamp + '-' + generateRandom(1, 999);
 } else {
-  clientId = clientId.split('.');
-  clientId = clientId[2].toString() + '.' + clientId[3].toString();
+  const gaId = clientId.split('.');
+  const id_1 = gaId[2];
+  const id_2 = gaId[3];
+  clientId = id_1.toString() + '.' + id_2.toString();
+}
+
+let label = '';
+
+if (productRoute !== '' && path.search(productRoute) >= 0) {
+  label = 'Product: ';
+} else if (cartRoute !== '' && path.search(cartRoute) >= 0) {
+  label = 'Cart: ';
+} else if (checkoutRoute !== '' && path.search(checkoutRoute) >= 0) {
+  label = 'Checkout: ';
 }
 
 // Measurement protocol preparation
-let endPoint = 'https://www.google-analytics.com/collect?' +
-    'v=1' +
-    '&tid=' + trackingId +
-    '&cid=' + clientId +
-    '&t=event' +
-    '&dp=' + pathName +
-    '&dh=' + hostName +
-    '&dl=' + encodeUriComponent(fullHost) +
-    '&ev=1' +
-    '&ec=ShoppingGives%20Engagement';
+let endPoint =
+  'https://www.google-analytics.com/collect?' +
+  'v=1' +
+  '&tid=' + trackingId +
+  '&cid=' + clientId +
+  '&t=event' +
+  '&dp=' + encode(path) +
+  '&dh=' + encode(host) +
+  '&dt=' + encode(title) +
+  '&dl=' + encode(url) +
+  '&ev=1' +
+  '&ec=' + encode(label + 'ShoppingGives Engagement');
+
+log(path, cartRoute);
+log(label, clientId);
 
 if (event === 'gtm.elementVisibility' && classes.search('sg-widget') >= 0) {
-  
-  endPoint += '&ea=ShoppingGives%20Widget%20Load&el=Widget%20Visibility&z=' + eventTimestamp;
+  endPoint +=
+    '&ea=' + encode(label + 'ShoppingGives Widget Load') +
+    '&el=' + encode(label + 'Widget Visibility') +
+    '&z=' + eventTimestamp;
+
   sendPixel(endPoint, data.gtmOnSuccess, data.gtmOnFailure);
-  
 } else if (event === 'gtm.click') {
-  
-  endPoint += '&ea=ShoppingGives%20Engagement%20Click';
+  endPoint += '&ea=' + encode(label + 'ShoppingGives Engagement Click');
 
   if (classes.search('sg-open-learn-more') >= 0) {
- 
     log('Learn More button clicked');
-    endPoint += '&el=Learn%20More';
+    endPoint += '&el=' + encode(label + 'Learn More');
     endPoint += '&z=' + eventTimestamp;
     sendPixel(endPoint, data.gtmOnSuccess, data.gtmOnFailure);
-
   } else if (classes.search('sg-open-charity-select') >= 0) {
-    
     log('Select Cause button clicked');
-    endPoint += '&el=Open%20Cause%20select';
+    endPoint += '&el=' + encode(label + 'Open Cause select');
     endPoint += '&z=' + eventTimestamp;
     sendPixel(endPoint, data.gtmOnSuccess, data.gtmOnFailure);
-
-  } else if (classes.search('sg-featured-select') >= 0){
-    
+  } else if (classes.search('sg-featured-select') >= 0) {
     log('Featured Cause selected');
-    endPoint += '&el=Featured%20Cause%20selected';
+    endPoint += '&el=' + encode(label + 'Featured Cause selected');
     endPoint += '&z=' + eventTimestamp;
     sendPixel(endPoint, data.gtmOnSuccess, data.gtmOnFailure);
-
-  } else if (classes.search('sg-charity-select') >= 0){
-    
+  } else if (classes.search('sg-charity-select') >= 0) {
     log('Searched Cause selected');
-    endPoint += '&el=Searched%20Cause%20selected';
+    endPoint += '&el=' + encode(label + 'Searched Cause selected');
     endPoint += '&z=' + eventTimestamp;
     sendPixel(endPoint, data.gtmOnSuccess, data.gtmOnFailure);
-
   } else {
-    
     data.gtmOnSuccess();
-
   }
 }
 
@@ -276,6 +316,16 @@ ___WEB_PERMISSIONS___
       "isEditedByUser": true
     },
     "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "read_title",
+        "versionId": "1"
+      },
+      "param": []
+    },
+    "isRequired": true
   }
 ]
 
@@ -287,6 +337,6 @@ scenarios: []
 
 ___NOTES___
 
-Created on 31/8/2020 11:16:29
+Created on 15/4/2021 16:52:13
 
 
